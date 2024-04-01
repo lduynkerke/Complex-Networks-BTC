@@ -1,2 +1,6 @@
 PyAthena
 boto3
+snappy
+fastparquet
+pyarrow
+s3fs
