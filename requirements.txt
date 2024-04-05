@@ -4,3 +4,9 @@ snappy
 fastparquet
 pyarrow
 s3fs
+requests
+scipy
+pandas
+networkx
+matplotlib
+numpy
