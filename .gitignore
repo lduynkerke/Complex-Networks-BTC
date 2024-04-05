@@ -161,3 +161,4 @@ cython_debug/
 
 # Folder with all BTC data
 /backup_data
+data/transactions/
