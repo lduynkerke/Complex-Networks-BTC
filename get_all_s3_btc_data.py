@@ -32,7 +32,7 @@ files = []
 for obj in bucket.objects.all():
     key = obj.key
     # print(key)
-    if prefix in key and "2024-03" in key and "transactions" in key:
+    if prefix in key and "2024-04-01" in key and "transactions" in key:
         print(key)
         body = obj.get()['Body'].read()
         file_name = key.split("/")[-1]
