@@ -5,10 +5,17 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 
+import os
+
+# 将临时文件目录设置为D盘的某个文件夹
+os.environ['TMP'] = 'D:/Temp'
+os.environ['TEMP'] = 'D:/Temp'
+
+
 def main():
+
     file_dir = "data/"
     files = sorted(get_files_recursively(f"{file_dir}"))
-    
     all_block_dfs = {}
     all_transaction_dfs = {}
     for file in files:
@@ -21,14 +28,11 @@ def main():
             all_block_dfs[date] = df
         if "transactions" in file:
             all_transaction_dfs[date] = df
-            
     # pprint(all_block_dfs)
     # pprint(all_transaction_dfs)
     pprint(all_transaction_dfs['2024-03-01'].columns)
-
     G = create_network(all_transaction_dfs)
     print_network_data(G)
-
 
 def read_snappy_parquet(file_path):
     try:
@@ -66,14 +70,52 @@ def create_network(dict_df):
                 G.add_edge(address1, address2, weight=0.5)
 
     return G
-
 def print_network_data(G):
     num_nodes = G.number_of_nodes()
     num_edges = G.number_of_edges()
     avg_degree = np.mean([deg for node, deg in G.degree()])
     std_dev_degree = np.std([deg for node, deg in G.degree()])
 
-    print(num_nodes, num_edges, avg_degree, std_dev_degree)
+    # print(num_nodes, num_edges, avg_degree, std_dev_degree)
+    print(f"Number of nodes: {num_nodes}")
+    print(f"Number of edges: {num_edges}")
+    print(f"Average degree: {avg_degree}")
+    print(f"Degree standard deviation: {std_dev_degree}")
+#paper A&B
+    clustering_coefficient = nx.average_clustering(G)
+    print(f"Average clustering coefficient: {clustering_coefficient}")
+
+    # Shortest path length: not a connected network/graph
+    # Calculate the average shortest path length for the largest connected component only
+    # directed graph:strongly_connected_components(G)
+    # undirected graph:nx.connected_components(G)
+    if nx.is_directed(G):
+        if nx.is_strongly_connected(G):
+            shortest_path_length = nx.average_shortest_path_length(G)
+        else:
+            largest_scc = max(nx.strongly_connected_components(G), key=len)
+            subgraph = G.subgraph(largest_scc)
+            shortest_path_length = nx.average_shortest_path_length(subgraph)
+            print("Graph is not strongly connected.")
+    else:
+        if nx.is_connected(G):
+            shortest_path_length = nx.average_shortest_path_length(G)
+        else:
+            largest_cc = max(nx.connected_components(G), key=len)
+            subgraph = G.subgraph(largest_cc)
+            shortest_path_length = nx.average_shortest_path_length(subgraph)
+            print("Graph is not connected.")
+
+    print(f"Average shortest path length: {shortest_path_length}")
+
+    # Histogram of degree distribution
+    degrees = [G.degree(n) for n in G.nodes()]
+    plt.figure(figsize=(10, 5))  # 可以调整图像大小
+    plt.hist(degrees, bins='auto')
+    plt.title("Degree Distribution")
+    plt.ylabel("Count")
+    plt.xlabel("Degree")
+    plt.show()
 
     # Visualize the network
     nx.draw(G, with_labels=True)
@@ -81,3 +123,9 @@ def print_network_data(G):
 
 if __name__ == "__main__":
     main()
+    #paper-A&B
+    #ball_transaction_dfs = main()
+    # G = create_network(all_transaction_dfs)
+    # clustering_coefficient_shortest_path(G)
+    # plot_degree_distribution(G)
+    # clustering_coefficient_shortest_path(G)
