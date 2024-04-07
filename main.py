@@ -5,13 +5,6 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 
-import os
-
-# 将临时文件目录设置为D盘的某个文件夹
-os.environ['TMP'] = 'D:/Temp'
-os.environ['TEMP'] = 'D:/Temp'
-
-
 def main():
 
     file_dir = "data/"
