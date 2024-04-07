@@ -160,5 +160,3 @@ cython_debug/
 #.idea/
 
 # Folder with all BTC data
-/backup_data
-data/transactions/
