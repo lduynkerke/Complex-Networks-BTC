@@ -5,6 +5,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def main():
     file_dir = "data/"
     files = sorted(get_files_recursively(f"{file_dir}"))
@@ -14,7 +15,7 @@ def main():
     for file in files:
         print(file)
         # date = file.split('/')[2][5:] # Linux
-        date = file.split('\\')[1][5:] # Windows
+        date = file.split('\\')[1][5:]  # Windows
         print(date)
         df = read_snappy_parquet(file)
         if "blocks" in file:
@@ -26,8 +27,9 @@ def main():
     # pprint(all_transaction_dfs)
     pprint(all_transaction_dfs['2024-03-01'].columns)
 
-    G = create_network(all_transaction_dfs)
-    print_network_data(G)
+    # Create network and print properties
+    btc = create_network(all_transaction_dfs)
+    print_network_data(btc)
 
 
 def read_snappy_parquet(file_path):
@@ -48,7 +50,7 @@ def get_files_recursively(directory):
 
 
 def create_network(dict_df):
-    G = nx.DiGraph() # Directed graph since transactions are one way only
+    G = nx.DiGraph()  # Directed graph since transactions are one way only
     df = dict_df['2024-03-01']
 
     for i in range(df.shape[0]):
@@ -67,7 +69,9 @@ def create_network(dict_df):
 
     return G
 
+
 def print_network_data(G):
+    # Calculate and print network properties
     num_nodes = G.number_of_nodes()
     num_edges = G.number_of_edges()
     avg_degree = np.mean([deg for node, deg in G.degree()])
@@ -75,8 +79,18 @@ def print_network_data(G):
 
     print(num_nodes, num_edges, avg_degree, std_dev_degree)
 
-    # Visualize the network
-    nx.draw(G, with_labels=True)
+    # Select top nodes based on centrality scores
+    centrality = nx.degree_centrality(G)
+    top_nodes = sorted(centrality, key=centrality.get, reverse=True)[:5000]  # Adjust the number of nodes as needed
+    subgraph = G.subgraph(top_nodes)
+
+    # Draw the subgraph
+    pos = nx.spring_layout(subgraph)  # Or any other layout algorithm
+    nx.draw_networkx_nodes(subgraph, pos, node_size=10)
+    nx.draw_networkx_edges(subgraph, pos, alpha=0.5)
+
+    plt.axis('off')
+    plt.show()
 
 
 if __name__ == "__main__":
