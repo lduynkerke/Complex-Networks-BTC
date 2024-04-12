@@ -3,8 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def format_data(block_dict, price_dict):
-    df_price = price_dict['2024-03-01']
+def format_data(block_dict, df_price):
     df_price['date'] = pd.to_datetime(df_price['date'].dt.tz_localize(None))
     df_price['volatility'] = np.log(df_price['close']).diff().rolling(window=30).std()
 
