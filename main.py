@@ -5,13 +5,17 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 
+from correlation import format_data, analyse_correlation
+
+
 
 def main():
     file_dir = "data/"
     files = sorted(get_files_recursively(f"{file_dir}"))
-    
+
     all_block_dfs = {}
     all_transaction_dfs = {}
+    all_price_dfs = {}
     for file in files:
         print(file)
         # date = file.split('/')[2][5:] # Linux
@@ -22,14 +26,19 @@ def main():
             all_block_dfs[date] = df
         if "transactions" in file:
             all_transaction_dfs[date] = df
-            
-    # pprint(all_block_dfs)
-    # pprint(all_transaction_dfs)
-    pprint(all_transaction_dfs['2024-03-01'].columns)
+        if "price" in file:
+            all_price_dfs[date] = df
+
+    pprint(all_block_dfs['2024-04-01'].columns)
+    pprint(all_price_dfs['2024-03-01'].columns)
 
     # Create network and print properties
     btc = create_network(all_transaction_dfs)
     print_network_data(btc)
+
+    # Analyse correlation
+    correlation_df = format_data(all_block_dfs, all_price_dfs)
+    analyse_correlation(correlation_df)
 
 
 def read_snappy_parquet(file_path):
