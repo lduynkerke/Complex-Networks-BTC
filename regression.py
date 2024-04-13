@@ -26,8 +26,6 @@ def prepare_data(dataframe):
 
 def fit_linear_model(x_train, x_test, y_train, y_test):
     linear_model = LinearRegression()
-    # model.intercept_ = 4.481696494462085
-    # model.coef_ = [-0.01869561, 0.0455032, 0.16316049, 0.8090892]
     linear_model.fit(x_train, y_train)
 
     # Evaluate the model
@@ -47,8 +45,6 @@ def fit_linear_model(x_train, x_test, y_train, y_test):
 
 def fit_lasso_model(x_train, x_test, y_train, y_test):
     lasso_model = Lasso(alpha=0.1)  # Alpha is the regularization strength, adjust as needed
-    # lasso_model.intercept_ = 4.481696494462085  # 5000
-    # lasso_model.coef_ = [-0.01869561, 0.0455032, 0.16316049, 0.8090892]
     lasso_model.fit(x_train, y_train)
 
     # Evaluate the model
@@ -68,15 +64,12 @@ def fit_lasso_model(x_train, x_test, y_train, y_test):
 
 def fit_ridge_model(x_train, x_test, y_train, y_test):
     ridge_model = Ridge(alpha=1.0)  # Alpha is the regularization strength, adjust as needed
-    ridge_model.intercept_ = 4.481696494462085
-    ridge_model.coef_ = [0.8090892, 0.16316049, 0.0455032, -0.01869561]
     ridge_model.fit(x_train, y_train)
 
     # Evaluate the model
     predict_ridge = ridge_model.predict(x_test)
     mse_ridge = mean_squared_error(y_test, predict_ridge)
     r2_ridge = r2_score(y_test, predict_ridge)
-
 
     # Print the mean squared error, intercept and coefficients
     print("\nRidge Regression Model")
@@ -87,12 +80,14 @@ def fit_ridge_model(x_train, x_test, y_train, y_test):
 
     return ridge_model
 
+
 def fit_regression(x_train, x_test, y_train, y_test, y_cols):
     for column in range(len(y_cols)):
         print('\nTest models for: ', y_cols[column])
         fit_linear_model(x_train, x_test, y_train[:, column], y_test[:, column])
         fit_lasso_model(x_train, x_test, y_train[:, column], y_test[:, column])
         fit_ridge_model(x_train, x_test, y_train[:, column], y_test[:, column])
+
 
 def bootstrap(x_train, x_test, y_train, y_test, model):
     mse_scores = []
