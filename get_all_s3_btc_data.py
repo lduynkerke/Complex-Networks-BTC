@@ -1,47 +1,64 @@
 import os
 import boto3
-import pandas as pd
-from pprint import pprint
-from fastparquet import ParquetFile
-import snappy
 import pyarrow as pa
 import pyarrow.parquet as pq
-import s3fs
+from dotenv import load_dotenv
 
-# from pyathena import connect
+# Load environment variables from .env file
+load_dotenv()
 
-def write_to_file(file_path, data):
-    """Write data to a file."""
-    try:
-        with open(file_path, 'w') as file:
-            file.write(data)
-        print("Data written to file successfully.")
-    except Exception as e:
-        print(f"Error writing to file: {str(e)}")
+# AWS credentials from .env file
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+aws_region = os.getenv("AWS_REGION")
 
+# Create a session using the loaded credentials
+session = boto3.Session(
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key,
+    region_name=aws_region
+)
 
-s3 = boto3.resource('s3')  # Create the connection to your bucket
+# Create an S3 client using the session
+s3_client = session.client('s3')
 
-bucket = 'aws-public-blockchain'
+# Bucket name and prefix
+bucket_name = 'aws-public-blockchain'
 prefix = 'v1.0/btc'
 
-bucket = s3.Bucket(f"{bucket}")
+# Function to list all objects in the bucket with pagination
+def list_all_objects(bucket_name, prefix):
+    objects = []
+    paginator = s3_client.get_paginator('list_objects_v2')
+    page_iterator = paginator.paginate(Bucket=bucket_name, Prefix=prefix)
 
-files = []
+    for page in page_iterator:
+        if 'Contents' in page:
+            objects.extend(page['Contents'])
 
-for obj in bucket.objects.all():
-    key = obj.key
-    # print(key)
-    if prefix in key and "2024-04-01" in key and "transactions" in key:
-        print(key)
-        body = obj.get()['Body'].read()
+    return objects
+
+# List all objects in the bucket with the specified prefix
+objects = list_all_objects(bucket_name, prefix)
+
+for obj in objects:
+    key = obj['Key']
+    if "2024-04" in key and "transactions" in key:  # Filter objects based on conditions
+        print("Downloading:", key)
+        # Download the object
+        response = s3_client.get_object(Bucket=bucket_name, Key=key)
+        body = response['Body'].read()
+        
         file_name = key.split("/")[-1]
-    
-        dir = f"data{key[len(prefix):-len(file_name)]}"
-        print(dir)
-        os.makedirs(dir, exist_ok=True)
+        # Extract filename and directory
+        directory = f"data{key[len(prefix):-len(file_name)]}"
+        
+        # Create directory if it doesn't exist
+        os.makedirs(directory, exist_ok=True)
+        
+        # Read Parquet file from buffer
         buffer = pa.BufferReader(body)
-        # Create a PyArrow table from the bytes data
         table = pq.read_table(buffer)
-        # Write the PyArrow table to the .snappy.parquet file
-        pq.write_table(table, f"{dir}/{file_name}", compression='snappy')
+        
+        # Write Parquet file to disk
+        pq.write_table(table, os.path.join(directory, file_name), compression='snappy')

@@ -16,7 +16,7 @@ def main():
     for file in files:
         print(file)
         # date = file.split('/')[2][5:] # Linux
-        date = file.split('\\')[1][5:] # Windows
+        date = file.split('\\')[1][5:]  # Windows
         print(date)
         df = read_snappy_parquet(file)
         if "blocks" in file:
@@ -69,51 +69,13 @@ def create_network(dict_df):
 
     return G
 def print_network_data(G):
+    # Calculate and print network properties
     num_nodes = G.number_of_nodes()
     num_edges = G.number_of_edges()
     avg_degree = np.mean([deg for node, deg in G.degree()])
     std_dev_degree = np.std([deg for node, deg in G.degree()])
 
-    # print(num_nodes, num_edges, avg_degree, std_dev_degree)
-    print(f"Number of nodes: {num_nodes}")
-    print(f"Number of edges: {num_edges}")
-    print(f"Average degree: {avg_degree}")
-    print(f"Degree standard deviation: {std_dev_degree}")
-#paper A&B
-    clustering_coefficient = nx.average_clustering(G)
-    print(f"Average clustering coefficient: {clustering_coefficient}")
-
-    # Shortest path length: not a connected network/graph
-    # Calculate the average shortest path length for the largest connected component only
-    # directed graph:strongly_connected_components(G)
-    # undirected graph:nx.connected_components(G)
-    if nx.is_directed(G):
-        if nx.is_strongly_connected(G):
-            shortest_path_length = nx.average_shortest_path_length(G)
-        else:
-            largest_scc = max(nx.strongly_connected_components(G), key=len)
-            subgraph = G.subgraph(largest_scc)
-            shortest_path_length = nx.average_shortest_path_length(subgraph)
-            print("Graph is not strongly connected.")
-    else:
-        if nx.is_connected(G):
-            shortest_path_length = nx.average_shortest_path_length(G)
-        else:
-            largest_cc = max(nx.connected_components(G), key=len)
-            subgraph = G.subgraph(largest_cc)
-            shortest_path_length = nx.average_shortest_path_length(subgraph)
-            print("Graph is not connected.")
-
-    print(f"Average shortest path length: {shortest_path_length}")
-
-    # Histogram of degree distribution
-    degrees = [G.degree(n) for n in G.nodes()]
-    plt.figure(figsize=(10, 5))  # 可以调整图像大小
-    plt.hist(degrees, bins='auto')
-    plt.title("Degree Distribution")
-    plt.ylabel("Count")
-    plt.xlabel("Degree")
-    plt.show()
+    print(num_nodes, num_edges, avg_degree, std_dev_degree)
 
     # Visualize the network
     nx.draw(G, with_labels=True)
