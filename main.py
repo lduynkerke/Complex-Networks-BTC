@@ -1,10 +1,12 @@
 import os
+from matplotlib import pyplot as plt
 import pandas as pd
 from pprint import pprint
 
 from correlation import format_data, analyse_correlation
 from regression import prepare_data, fit_regression
 from network import create_network, print_network_data
+from viral_spreading import analyse_viral_spreading
 
 
 def main():
@@ -33,7 +35,7 @@ def main():
     pprint(all_price_dfs['2024-04-01'].columns)
 
     # Create network and print properties
-    # btc = create_network(all_transaction_dfs)
+    # btc = create_network(all_transaction_dfs, '2024-04-01')
     # print_network_data(btc)
 
     # Analyse correlation
@@ -43,6 +45,13 @@ def main():
     # Fit regression models
     x0, x1, y0, y1, cols = prepare_data(correlation_df)
     fit_regression(x0, x1, y0, y1, cols)
+
+    # Fit regression models
+    x0, x1, y0, y1, cols = prepare_data(correlation_df)
+    fit_regression(x0, x1, y0, y1, cols)
+
+    # Analyse viral spreading
+    analyse_viral_spreading(all_block_dfs, all_transaction_dfs)
 
 
 def read_snappy_parquet(file_path):
