@@ -6,6 +6,8 @@ from correlation import format_data, analyse_correlation
 from regression import prepare_data, fit_regression
 from network import create_network, print_network_data
 
+from connected_components import analyze_and_visualize_connected_components, read_parquet_file
+
 
 def main():
     file_dir = "data/"
@@ -64,3 +66,17 @@ def get_files_recursively(directory):
 
 if __name__ == "__main__":
     main()
+
+# if __name__ == "__main__":
+#     # Define the file path for the transaction data
+#     filepath = 'data/transactions/date=2024-04-01/part-00000-6ef63408-eab9-44d3-9497-cf8652666c86-c000.snappy.parquet'
+#
+#     # Read the transaction data using the function imported from connected_components
+#     transaction_data = read_parquet_file(filepath)
+#
+#     # Assuming the Parquet file has columns 'source' and 'target' representing edges
+#     # Update the column names as per the actual names in your Parquet file
+#     analyze_and_visualize_connected_components(transaction_data)
+
+
+
