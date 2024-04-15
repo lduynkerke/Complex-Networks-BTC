@@ -3,13 +3,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-def create_network(dict_df):
+def create_network(dict_df, date):
     G = nx.DiGraph()  # Directed graph since transactions are one way only
-    df = dict_df['2024-03-01']
+    df = dict_df[date]
 
     for i in range(df.shape[0]):
         cell1 = df['inputs'].iloc[i]
         cell2 = df['outputs'].iloc[i]
+        timestamp = df['block_timestamp'].iloc[i]
 
         if cell1 is not None and cell2 is not None:
             address1 = cell1[0]['address']
@@ -20,6 +21,8 @@ def create_network(dict_df):
                 G.add_node(address1)
                 G.add_node(address2)
                 G.add_edge(address1, address2, weight=0.5)
+
+                G.edges[address1, address2]['timestamp'] = timestamp
 
     return G
 

@@ -1,9 +1,11 @@
 import os
+from matplotlib import pyplot as plt
 import pandas as pd
 from pprint import pprint
 
 from correlation import format_data, analyse_correlation
 from network import create_network, print_network_data
+from viral_spreading import analyse_viral_spreading
 
 
 def main():
@@ -24,19 +26,22 @@ def main():
         if "price" in file:
             all_price_dfs[date] = df
         # Uncomment if you want to create network
-        # if "transactions" in file:
-        #     all_transaction_dfs[date] = df
+        if "transactions" in file:
+            all_transaction_dfs[date] = df
 
     pprint(all_block_dfs['2024-04-01'].columns)
     pprint(all_price_dfs['2024-04-01'].columns)
 
     # Create network and print properties
-    # btc = create_network(all_transaction_dfs)
+    # btc = create_network(all_transaction_dfs, '2024-04-01')
     # print_network_data(btc)
 
     # Analyse correlation
-    correlation_df = format_data(all_block_dfs, all_price_dfs['2024-04-01'])
-    analyse_correlation(correlation_df)
+    # correlation_df = format_data(all_block_dfs, all_price_dfs['2024-04-01'])
+    # analyse_correlation(correlation_df)
+
+    # Analyse viral spreading
+    analyse_viral_spreading(all_block_dfs, all_transaction_dfs)
 
 
 def read_snappy_parquet(file_path):
